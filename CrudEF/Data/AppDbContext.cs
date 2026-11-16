@@ -5,13 +5,13 @@ namespace ArteViva.Data;
 
 public class AppDbContext : DbContext
 {
-    public AppDbContext() { }
 
+public AppDbContext() { }
 public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
 protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 {
-    optionsBuilder.UseMySQL("Server=localhost;Database=arteviva;User=root;Password=18062010;");
+    optionsBuilder.UseMySQL("Server=localhost;Database=arteviva;User=root;Password=Senac2026;");
    
 }
 
