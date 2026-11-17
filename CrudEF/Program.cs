@@ -2,9 +2,40 @@
 using Microsoft.EntityFrameworkCore;
 /////////////////////////////////////////////////////////////////////
 // Criar o banco de dados e as tabelas com dados iniciais
+var builder = WebApplication.CreateBuilder(args);
 
-using var db = new AppDbContext();
-db.Database.Migrate();   // cria o banco "arteviva", as tabelas e os dados iniciais
+// Configuração do MVC
+builder.Services.AddControllersWithViews();
 
-Console.WriteLine("Banco criado com sucesso!");
-//////////////////////////////////////////////////////////////////////
+// Configuração do Entity Framework com MySQL
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySQL(
+        builder.Configuration.GetConnectionString("DefaultConnection")!
+    )
+);
+
+var app = builder.Build();
+
+// Criar o banco e aplicar migrations automaticamente
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+
+    Console.WriteLine("Banco criado com sucesso!");
+}
+
+// Configuração do servidor web
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseAuthorization();
+
+// Rota inicial
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Cadastro}/{action=Index}/{id?}"
+);
+
+app.Run();
