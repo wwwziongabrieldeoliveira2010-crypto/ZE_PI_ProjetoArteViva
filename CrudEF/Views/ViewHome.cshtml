@@ -1,0 +1,76 @@
+@* @model HomeViewModel
+@{
+    ViewData["Title"] = "Início";
+}
+
+<section class="p-5 mb-4 bg-light rounded-3">
+    <h1 class="display-5 fw-bold">ArteViva</h1>
+    <p class="fs-5">Descubra eventos culturais na sua cidade: música, teatro, exposições e muito mais.</p>
+
+    <form asp-controller="Eventos" asp-action="Index" method="get" class="row g-2">
+        <div class="col-md-4">
+            <select name="cidadeId" asp-items="Model.Cidades" class="form-select">
+                <option value="">Palhoça</option>
+                <option value="">São josé</option>
+                <option value="">Florianópolis</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <select name="categoriaId" asp-items="Model.Categorias" class="form-select">
+                <option value="">Todas as categorias</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-primary w-100">Buscar eventos</button>
+        </div>
+    </form>
+</section>
+
+<h2 class="mb-3">Próximos eventos</h2>
+
+@if (!Model.ProximosEventos.Any())
+{
+    <div class="alert alert-info">Nenhum evento cadastrado por enquanto.</div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var evento in Model.ProximosEventos)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    @if (!string.IsNullOrEmpty(evento.FotoUrl))
+                    {
+                        <img src="@evento.FotoUrl" class="card-img-top" alt="@evento.Titulo"
+                             style="height: 200px; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <div class="bg-secondary text-white d-flex align-items-center justify-content-center"
+                             style="height: 200px;">Sem foto</div>
+                    }
+
+                    <div class="card-body">
+                        <span class="badge bg-primary mb-2">@evento.Categoria?.Nome</span>
+                        <h5 class="card-title">@evento.Titulo</h5>
+                        <p class="card-text text-muted mb-0">
+                            @evento.DataHora.ToString("dd/MM/yyyy 'às' HH:mm")
+                        </p>
+                        <p class="card-text text-muted">
+                            @evento.Cidade?.Nome - @evento.Cidade?.Uf
+                        </p>
+                    </div>
+
+                    <div class="card-footer bg-white border-0">
+                        <a asp-controller="Eventos" asp-action="Details" asp-route-id="@evento.Id"
+                           class="btn btn-outline-primary btn-sm">Ver detalhes</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="text-center mt-4">
+        <a asp-controller="Eventos" asp-action="Index" class="btn btn-link">Ver todos os eventos</a>
+    </div>
+} *@
