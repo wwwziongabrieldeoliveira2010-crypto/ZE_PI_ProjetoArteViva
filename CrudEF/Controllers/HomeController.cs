@@ -1,42 +1,51 @@
-// using System.Diagnostics;
-// using ArteViva.Data;
-// using ArteViva.ViewModels;
-// using Microsoft.AspNetCore.Mvc;
-// using Microsoft.AspNetCore.Mvc.Rendering;
-// using Microsoft.EntityFrameworkCore;
+using ArteViva.Data;
+using ArteViva.Models;
+using ArteViva.ViewModels;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
-// namespace ArteViva.Controllers;
+namespace ArteViva.Controllers;
 
-// public class HomeController : Controller
-// {
-//     private readonly AppDbContext _db;
-//     public HomeController(AppDbContext db) => _db = db;
+public class HomeController : Controller
+{
+    private readonly AppDbContext _db;
 
-//     // GET /  (página inicial)
-//     public async Task<IActionResult> Index()
-//     {
-//         var vm = new HomeViewModel
-//         {
-//             ProximosEventos = await _db.Eventos
-//                 .Include(e => e.Cidade)
-//                 .Include(e => e.Categoria)
-//                 .Where(e => e.DataHora >= DateTime.Now)
-//                 .OrderBy(e => e.DataHora)
-//                 .Take(6)                       // só os 6 mais próximos
-//                 .ToListAsync(),
+    public HomeController(AppDbContext db)
+    {
+        _db = db;
+    }
 
-//             Cidades = new SelectList(await _db.Cidades.OrderBy(c => c.Nome).ToListAsync(), "Id", "Nome"),
-//             Categorias = new SelectList(await _db.Categorias.OrderBy(c => c.Nome).ToListAsync(), "Id", "Nome")
-//         };
+    
+    [HttpGet]
+    public async Task<IActionResult> Index()
+    {
+        var agora = DateTime.Now;
 
-//         return View(vm);
-//     }
+        var viewModel = new HomeViewModel
+        {
+            
+            ProximosEventos = await _db.Eventos
+                .AsNoTracking()
+                .Include(e => e.Cidade)
+                .Include(e => e.Categoria)
+                .Where(e => e.DataHora >= agora && e.Status == "aprovado")
+                .OrderBy(e => e.DataHora)
+                .Take(6)
+                .ToListAsync(),
 
-//     // GET /Home/Sobre
-//     public IActionResult Sobre() => View();
+            Cidades = new SelectList(
+                await _db.Cidades.AsNoTracking().OrderBy(c => c.Nome).ToListAsync(),
+                nameof(Cidade.Id),
+                nameof(Cidade.Nome)),
 
-//     // GET /Home/Error
-//     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-//     public IActionResult Error() =>
-//         View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-// }
+            Categorias = new SelectList(
+                await _db.Categorias.AsNoTracking().OrderBy(c => c.Nome).ToListAsync(),
+                nameof(Categoria.Id),
+                nameof(Categoria.Nome))
+        };
+
+        
+        return View("ViewHome", viewModel);
+    }
+}

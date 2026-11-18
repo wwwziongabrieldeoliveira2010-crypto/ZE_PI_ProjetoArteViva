@@ -1,76 +1,89 @@
-@* @model HomeViewModel
+@model ArteViva.ViewModels.HomeViewModel
+
 @{
     ViewData["Title"] = "Início";
 }
 
-<section class="p-5 mb-4 bg-light rounded-3">
-    <h1 class="display-5 fw-bold">ArteViva</h1>
-    <p class="fs-5">Descubra eventos culturais na sua cidade: música, teatro, exposições e muito mais.</p>
+<section class="p-4 p-md-5 mb-5 rounded-3 bg-light">
+    <div class="container-fluid py-2">
+        <h1 class="display-5 fw-bold">Bem-vindo ao ArteViva!</h1>
+        <p class="col-md-9 fs-5">
+            Descubra eventos culturais na sua região. Encontre música, teatro,
+            exposições, dança, cinema, oficinas e muito mais.
+        </p>
 
-    <form asp-controller="Eventos" asp-action="Index" method="get" class="row g-2">
-        <div class="col-md-4">
-            <select name="cidadeId" asp-items="Model.Cidades" class="form-select">
-                <option value="">Palhoça</option>
-                <option value="">São josé</option>
-                <option value="">Florianópolis</option>
-            </select>
-        </div>
-        <div class="col-md-4">
-            <select name="categoriaId" asp-items="Model.Categorias" class="form-select">
-                <option value="">Todas as categorias</option>
-            </select>
-        </div>
-        <div class="col-md-4">
-            <button type="submit" class="btn btn-primary w-100">Buscar eventos</button>
-        </div>
-    </form>
+        <form asp-controller="Eventos" asp-action="Index" method="get" class="row g-2 mt-3">
+            <div class="col-12 col-md-5">
+                <label for="cidadeId" class="form-label">Cidade</label>
+                <select id="cidadeId" name="cidadeId" asp-items="Model.Cidades" class="form-select">
+                    <option value="">Todas as cidades</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-5">
+                <label for="categoriaId" class="form-label">Categoria</label>
+                <select id="categoriaId" name="categoriaId" asp-items="Model.Categorias" class="form-select">
+                    <option value="">Todas as categorias</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Buscar eventos</button>
+            </div>
+        </form>
+    </div>
 </section>
 
-<h2 class="mb-3">Próximos eventos</h2>
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Próximos eventos</h2>
+        <p class="text-muted mb-0">Confira o que está acontecendo na comunidade.</p>
+    </div>
+    <a asp-controller="Eventos" asp-action="Index" class="btn btn-outline-primary mt-2 mt-md-0">
+        Ver todos os eventos
+    </a>
+</div>
 
-@if (!Model.ProximosEventos.Any())
+@if (Model.ProximosEventos == null || !Model.ProximosEventos.Any())
 {
-    <div class="alert alert-info">Nenhum evento cadastrado por enquanto.</div>
+    <div class="alert alert-info" role="alert">
+        Ainda não há eventos futuros aprovados. Volte em breve para conferir as novidades!
+    </div>
 }
 else
 {
-    <div class="row row-cols-1 row-cols-md-3 g-4">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         @foreach (var evento in Model.ProximosEventos)
         {
             <div class="col">
-                <div class="card h-100 shadow-sm">
-                    @if (!string.IsNullOrEmpty(evento.FotoUrl))
-                    {
-                        <img src="@evento.FotoUrl" class="card-img-top" alt="@evento.Titulo"
-                             style="height: 200px; object-fit: cover;" />
-                    }
-                    else
-                    {
-                        <div class="bg-secondary text-white d-flex align-items-center justify-content-center"
-                             style="height: 200px;">Sem foto</div>
-                    }
-
+                <article class="card h-100 shadow-sm">
                     <div class="card-body">
-                        <span class="badge bg-primary mb-2">@evento.Categoria?.Nome</span>
-                        <h5 class="card-title">@evento.Titulo</h5>
-                        <p class="card-text text-muted mb-0">
-                            @evento.DataHora.ToString("dd/MM/yyyy 'às' HH:mm")
-                        </p>
+                        <span class="badge bg-primary mb-2">
+                            @(evento.Categoria?.Nome ?? "Sem categoria")
+                        </span>
+                        <h3 class="card-title h5">@evento.Titulo</h3>
                         <p class="card-text text-muted">
-                            @evento.Cidade?.Nome - @evento.Cidade?.Uf
+                            @(string.IsNullOrWhiteSpace(evento.Descricao)
+                                ? "Mais informações sobre este evento em breve."
+                                : evento.Descricao)
                         </p>
+                        <ul class="list-unstyled small mb-0">
+                            <li class="mb-1">
+                                <strong>Data:</strong> @evento.DataHora.ToString("dd/MM/yyyy 'às' HH:mm")
+                            </li>
+                            <li class="mb-1">
+                                <strong>Local:</strong> @evento.Local
+                            </li>
+                            <li>
+                                <strong>Cidade:</strong> @(evento.Cidade == null ? "Não informada" : $"{evento.Cidade.Nome} - {evento.Cidade.Uf}")
+                            </li>
+                        </ul>
                     </div>
-
-                    <div class="card-footer bg-white border-0">
-                        <a asp-controller="Eventos" asp-action="Details" asp-route-id="@evento.Id"
-                           class="btn btn-outline-primary btn-sm">Ver detalhes</a>
+                    <div class="card-footer bg-white border-0 pt-0">
+                        <span class="small text-muted">
+                            @(evento.Gratuito ? "Evento gratuito" : "Evento pago")
+                        </span>
                     </div>
-                </div>
+                </article>
             </div>
         }
     </div>
-
-    <div class="text-center mt-4">
-        <a asp-controller="Eventos" asp-action="Index" class="btn btn-link">Ver todos os eventos</a>
-    </div>
-} *@
+}
