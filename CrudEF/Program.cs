@@ -7,6 +7,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Configuração do MVC
 builder.Services.AddControllersWithViews();
 
+builder.Services
+    .AddAuthentication("Cookies")
+    .AddCookie("Cookies");
+
 // Configuração do Entity Framework com MySQL
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySQL(
@@ -30,12 +34,13 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 // Rota inicial
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Cadastro}/{action=Index}/{id?}"
+    pattern: "{controller=Usuarios}/{action=Cadastro}/{id?}"
 );
 
 app.Run();
