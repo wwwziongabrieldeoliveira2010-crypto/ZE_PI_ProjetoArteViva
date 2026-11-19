@@ -9,7 +9,10 @@ builder.Services.AddControllersWithViews();
 
 builder.Services
     .AddAuthentication("Cookies")
-    .AddCookie("Cookies");
+        .AddCookie("Cookies", options =>
+    {
+        options.LoginPath = "/Usuarios/Login";   // redireciona quem não está logado
+    });
 
 // Configuração do Entity Framework com MySQL
 builder.Services.AddDbContext<AppDbContext>(options =>
