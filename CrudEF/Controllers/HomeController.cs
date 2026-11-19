@@ -50,6 +50,6 @@ public class HomeController : Controller
             )
         };
 
-        return View("ViewHome", vm);
+        return View("~/Views/ViewHome.cshtml", vm);
     }
 }

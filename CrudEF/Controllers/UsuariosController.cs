@@ -49,7 +49,7 @@ public class UsuariosController : Controller
 
         var usuario = new Usuario
         {
-            Nome = vm.Nome.Trim(),
+            Nome = (vm.Nome ?? "").Trim(),
             Email = email,
             CidadeId = vm.CidadeId
         };
@@ -86,7 +86,7 @@ public class UsuariosController : Controller
     {
         if (!ModelState.IsValid) return View(vm);
 
-        var email = vm.Email.Trim().ToLowerInvariant();
+        var email = (vm.Email ?? "").Trim().ToLowerInvariant();
         var usuario = await _db.Usuarios.FirstOrDefaultAsync(u => u.Email == email);
 
         var ok = usuario != null &&
@@ -105,7 +105,7 @@ public class UsuariosController : Controller
         if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             return Redirect(returnUrl);
 
-        return RedirectToAction("Index", "Home");
+        return RedirectToAction("~/Views/ViewHome.cshtml", vm);
     }
 
     // ---------- LOGOUT ----------
