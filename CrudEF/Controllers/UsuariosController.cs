@@ -35,7 +35,7 @@ public class UsuariosController : Controller
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Cadastro(CadastroViewModel vm)
     {
-        var email = vm.Email.Trim().ToLowerInvariant();
+        var email = (vm.Email ?? "").Trim().ToLowerInvariant();
 
         // RN01: e-mail único
         if (await _db.Usuarios.AnyAsync(u => u.Email == email))
@@ -86,7 +86,7 @@ public class UsuariosController : Controller
     {
         if (!ModelState.IsValid) return View(vm);
 
-        var email = (vm.Email ?? "").Trim().ToLowerInvariant();
+        var email = vm.Email.Trim().ToLowerInvariant();
         var usuario = await _db.Usuarios.FirstOrDefaultAsync(u => u.Email == email);
 
         var ok = usuario != null &&
