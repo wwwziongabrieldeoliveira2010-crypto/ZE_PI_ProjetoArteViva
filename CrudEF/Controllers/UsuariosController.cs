@@ -105,7 +105,8 @@ public class UsuariosController : Controller
         if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             return Redirect(returnUrl);
 
-        return RedirectToAction("Index, Home");
+        
+        return RedirectToAction("Index", "Home");
     }
 
     // ---------- LOGOUT ----------

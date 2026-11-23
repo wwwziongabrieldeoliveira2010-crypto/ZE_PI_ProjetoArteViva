@@ -1,0 +1,41 @@
+
+:root {
+    --cor-principal: #c098da;
+    --cor-destaque: #806133;
+    --cor-fundo: #faf7fc;
+    --cor-texto: #d30808;
+}
+
+body {
+    background-color: var(--cor-fundo) !important;
+    color: var(--cor-texto);
+}
+
+.navbar-arteviva {
+    background-color: var(--cor-principal) !important;
+}
+
+.navbar-arteviva .nav-link:hover {
+    color: var(--cor-destaque) !important;
+}
+
+.btn-destaque {
+    background-color: var(--cor-destaque);
+    border-color: var(--cor-destaque);
+    color: #fff;
+}
+
+.btn-destaque:hover {
+    filter: brightness(0.9);
+    color: #fff;
+}
+
+.btn-primary {
+    background-color: var(--cor-principal);
+    border-color: var(--cor-principal);
+}
+
+.btn-primary:hover {
+    background-color: var(--cor-destaque);
+    border-color: var(--cor-destaque);
+}
