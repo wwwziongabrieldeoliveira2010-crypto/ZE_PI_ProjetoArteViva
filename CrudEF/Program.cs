@@ -1,5 +1,6 @@
 ﻿using ArteViva.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
 /////////////////////////////////////////////////////////////////////
 // Criar o banco de dados e as tabelas com dados iniciais
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection")!
     )
 );
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(o => o.LoginPath = "/Conta/Login");
 
 var app = builder.Build();
 
