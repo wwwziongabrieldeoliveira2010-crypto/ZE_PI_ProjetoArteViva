@@ -104,4 +104,54 @@ public class EventosController : Controller
         TempData["Sucesso"] = "Evento cadastrado com sucesso!";
         return RedirectToAction(nameof(Index));
     }
-}
+    
+
+    // ---------- MEUS EVENTOS ----------
+
+    [Authorize, HttpGet]
+    public async Task<IActionResult> MeusEventos()
+    {
+        var eventos = await _db.Eventos
+            .AsNoTracking()
+            .Include(e => e.Cidade)
+            .Include(e => e.Categoria)
+            .Where(e => e.UsuarioId == UsuarioLogadoId())
+            .OrderBy(e => e.DataHora)
+            .ToListAsync();
+
+        return View("~/Views/Eventos/MeusEventos.cshtml", eventos);
+    }
+
+    // ---------- EXCLUIR EVENTO ----------
+
+    [Authorize, HttpGet]
+    public async Task<IActionResult> Excluir(int id)
+    {
+        // só encontra o evento se ele for do usuário logado (RN07)
+        var evento = await _db.Eventos
+            .AsNoTracking()
+            .Include(e => e.Cidade)
+            .FirstOrDefaultAsync(e => e.Id == id && e.UsuarioId == UsuarioLogadoId());
+
+        if (evento == null) return NotFound();
+
+        return View("~/Views/Eventos/Excluir.cshtml", evento);
+    }
+
+    [Authorize, HttpPost, ActionName("Excluir"), ValidateAntiForgeryToken]
+    public async Task<IActionResult> ExcluirConfirmado(int id)
+    {
+        var evento = await _db.Eventos
+            .FirstOrDefaultAsync(e => e.Id == id && e.UsuarioId == UsuarioLogadoId());
+
+        if (evento == null) return NotFound();
+
+        _db.Eventos.Remove(evento);
+        await _db.SaveChangesAsync();   // os interesses do evento saem junto (RN14)
+
+        TempData["Sucesso"] = "Evento excluído com sucesso.";
+        return View("~/Views/MeusEventos.cshtml", evento);
+    }
+
+    private int UsuarioLogadoId() =>
+        int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);}

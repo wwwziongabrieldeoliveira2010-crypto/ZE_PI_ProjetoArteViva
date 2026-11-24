@@ -1,0 +1,53 @@
+@model List<ArteViva.Models.Evento>
+
+@{
+    ViewData["Title"] = "Meus eventos";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Meus eventos</h2>
+    <a asp-action="Criar" class="btn btn-primary mt-2 mt-md-0">Cadastrar evento</a>
+</div>
+
+@if (TempData["Sucesso"] != null)
+{
+    <div class="alert alert-success">@TempData["Sucesso"]</div>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Você ainda não cadastrou nenhum evento.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Data</th>
+                    <th>Cidade</th>
+                    <th>Categoria</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var evento in Model)
+                {
+                    <tr>
+                        <td>@evento.Titulo</td>
+                        <td>@evento.DataHora.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@(evento.Cidade == null ? "-" : $"{evento.Cidade.Nome} - {evento.Cidade.Uf}")</td>
+                        <td>@(evento.Categoria?.Nome ?? "-")</td>
+                        <td>@evento.Status</td>
+                        <td class="text-end">
+                            <a asp-action="Excluir" asp-route-id="@evento.Id"
+                               class="btn btn-sm btn-outline-danger">Excluir</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
