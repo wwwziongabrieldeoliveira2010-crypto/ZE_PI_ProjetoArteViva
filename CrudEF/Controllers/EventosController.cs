@@ -155,3 +155,96 @@ public class EventosController : Controller
 
     private int UsuarioLogadoId() =>
         int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);}
+
+    [Authorize]
+public class EditarEventoController : Controller
+{
+    private readonly AppDbContext _db;
+
+    public EditarEventoController(AppDbContext db) => _db = db;
+
+    private int UsuarioLogadoId() =>
+        int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+    private async Task CarregarListas(int? cidadeId = null, int? categoriaId = null)
+    {
+        ViewBag.Cidades = new SelectList(
+            await _db.Cidades.AsNoTracking().OrderBy(c => c.Nome).ToListAsync(),
+            "Id", "Nome", cidadeId);
+
+        ViewBag.Categorias = new SelectList(
+            await _db.Categorias.AsNoTracking().OrderBy(c => c.Nome).ToListAsync(),
+            "Id", "Nome", categoriaId);
+    }
+
+    
+    
+
+    [HttpGet]
+    public async Task<IActionResult> Index(int id)
+    {
+        
+        var evento = await _db.Eventos
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.Id == id && e.UsuarioId == UsuarioLogadoId());
+
+        if (evento == null) return NotFound();
+
+        var vm = new EventoCadastroViewModel
+        {
+            Titulo = evento.Titulo,
+            Descricao = evento.Descricao,
+            DataHora = evento.DataHora,
+            Local = evento.Local,
+            CidadeId = evento.CidadeId,
+            CategoriaId = evento.CategoriaId,
+            Gratuito = evento.Gratuito
+        };
+
+        ViewBag.EventoId = id;
+        await CarregarListas(vm.CidadeId, vm.CategoriaId);
+        return View("~/Views/Eventos/Editar.cshtml", vm);
+    }
+
+    
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Index(int id, EventoCadastroViewModel vm)
+    {
+        var evento = await _db.Eventos
+            .FirstOrDefaultAsync(e => e.Id == id && e.UsuarioId == UsuarioLogadoId());
+
+        if (evento == null) return NotFound();
+
+
+        if (vm.DataHora.HasValue && vm.DataHora.Value != evento.DataHora
+            && vm.DataHora.Value <= DateTime.Now)
+            ModelState.AddModelError(nameof(vm.DataHora), "A data do evento deve ser futura");
+
+        if (!await _db.Cidades.AnyAsync(c => c.Id == vm.CidadeId))
+            ModelState.AddModelError(nameof(vm.CidadeId), "Cidade inválida");
+
+        if (!await _db.Categorias.AnyAsync(c => c.Id == vm.CategoriaId))
+            ModelState.AddModelError(nameof(vm.CategoriaId), "Categoria inválida");
+
+        if (!ModelState.IsValid)
+        {
+            ViewBag.EventoId = id;
+            await CarregarListas(vm.CidadeId, vm.CategoriaId);
+            return View("~/Views/Eventos/Editar.cshtml", vm);
+        }
+
+        evento.Titulo = vm.Titulo.Trim();
+        evento.Descricao = vm.Descricao.Trim();
+        evento.DataHora = vm.DataHora!.Value;
+        evento.Local = vm.Local.Trim();
+        evento.Gratuito = vm.Gratuito;
+        evento.CidadeId = vm.CidadeId;
+        evento.CategoriaId = vm.CategoriaId;
+
+        await _db.SaveChangesAsync();   
+
+        TempData["Sucesso"] = "Evento atualizado com sucesso.";
+        return RedirectToAction("MeusEventos", "Eventos");
+    }
+}

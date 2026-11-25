@@ -42,6 +42,9 @@ else
                         <td>@(evento.Categoria?.Nome ?? "-")</td>
                         <td>@evento.Status</td>
                         <td class="text-end">
+                            <a asp-controller="EditarEvento" asp-action="Index" asp-route-id="@evento.Id"
+                            class="btn btn-sm btn-outline-primary">Editar</a>
+                            
                             <a asp-action="Excluir" asp-route-id="@evento.Id"
                                class="btn btn-sm btn-outline-danger">Excluir</a>
                         </td>
