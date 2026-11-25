@@ -150,7 +150,7 @@ public class EventosController : Controller
         await _db.SaveChangesAsync();   // os interesses do evento saem junto (RN14)
 
         TempData["Sucesso"] = "Evento excluído com sucesso.";
-        return View("~/Views/MeusEventos.cshtml", evento);
+        return RedirectToAction(nameof(MeusEventos));
     }
 
     private int UsuarioLogadoId() =>
