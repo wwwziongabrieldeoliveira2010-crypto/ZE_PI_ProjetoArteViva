@@ -42,3 +42,6 @@ body {
     background-color: var(--cor-destaque);
     border-color: var(--cor-destaque);
 }
+.ocultar{
+    display: none;
+}
